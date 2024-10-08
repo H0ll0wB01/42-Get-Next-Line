@@ -10,7 +10,7 @@ int	main(void)
 	// 	perror("Error opening the file");
     //     return 1;
     // }
-	// write (fd, "HELLO\nWorld\n!Im\nGod\n", 21);
+	// write (fd, "HELLO\nWorld\n!Im\nGod", 22);
 	// close (fd);
 
 	// fd = open("example.txt", O_RDONLY);
@@ -26,14 +26,13 @@ int	main(void)
 		return 1;
 	}
 	// To test here;
-
 	char *linereaded = NULL;
   	int n_lines = 0;
 	while ((linereaded = ft_get_next_line(fd)) != NULL)
 	{
 		n_lines++;
-		printf("%d %s$\n", n_lines, linereaded);
-		free (linereaded);
+    	printf("%d. %s$\n", n_lines, linereaded);
+    	free(linereaded);
 	}
 	close(fd);
     return 0;

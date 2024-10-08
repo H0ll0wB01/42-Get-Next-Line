@@ -14,7 +14,10 @@ BUFFER_SIZE ?= 42
 USE_BUFFER_SIZE ?= 1
 
 # Compilation flags
-CFLAGS = -Wall -Werror -Wextra -I $(HEADER_DIR)
+CFLAGS = -Wall -Werror -Wextra -g3 -I $(HEADER_DIR)
+
+# Sanitize flags to test 
+C_SANITIZE_FLAGS = -Wall -Werror -Wextra -fsanitize=address -I $(HEADER_DIR)
 
 # Add BUFFER_SIZE definition to compilation flags if enabled 
 ifeq ($(USE_BUFFER_SIZE), 1)
@@ -53,9 +56,17 @@ fclean: clean
 # Clean up and then build all targets
 re:	fclean all
 
-# Compile and run the  test program
+# Compile and run the test program
 test: $(NAME) main.o
 	$(CC) $(CFLAGS) -o test_program main.o $(NAME)
 	@./test_program
 
+# Compile and run the test program with sanitize
+test_sanitize: $(NAME) main.o
+	$(CC) $(C_SANITIZE_FLAGS) -o test_program main.o $(NAME)
+	@./test_program
+
+test_valgrind: $(NAME) main.o
+	$(CC) $(C_FLAGS) -o test_program main.o $(NAME)
+	@valgrind --leak-check=full --show-leak-kinds=all  ./test_program
 .PHONY: all clean fclean re test

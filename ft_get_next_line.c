@@ -12,6 +12,38 @@
 
 #include "get_next_line.h"
 
+static void	freedom(void **ptr)
+{
+	if (*ptr)
+	{
+		free(*ptr);
+		*ptr = NULL;
+	}
+}
+
+static	char	*prepare_line_read(char *buffer, char *rest)
+{
+	char	*temp;
+	char	*line_read;
+
+	temp = NULL;
+	line_read = ft_strdup(buffer);
+	if (!line_read)
+		return (NULL);
+	if (rest)
+	{
+		temp = ft_strjoin(rest, line_read);
+		if (!temp)
+		{
+			freedom((void **)&line_read);
+			return (NULL);
+		}
+		line_read = ft_strdup(temp);
+		freedom((void **)&temp);
+	}
+	return (line_read);
+}
+
 char	*ft_get_next_line(int fd)
 {
 	char			*buffer;
@@ -20,36 +52,39 @@ char	*ft_get_next_line(int fd)
 	ssize_t			bytes_read;
 	static char		*rest;
 
+	line_read = NULL;
 	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buffer)
 		return (NULL);
-	while (1) // Lectura del archivo // 
+	while (1)
 	{
 		bytes_read = read (fd, buffer, BUFFER_SIZE);
-		if (bytes_read <= 0 && !rest)
+		if (bytes_read == -1) // ERROR DE LECTURA // 
 		{
-			free (buffer);
+			freedom((void **)&buffer);
 			return (NULL);
 		}
-		buffer[bytes_read] = '\0';
-		line_read = ft_strdup(buffer);
-		if (rest) // Resto almaceando anteriormente // 
+		if (bytes_read == 0 && !line_read) // FIN DE LECTURA Y NO TENGO LINE_READ
 		{
-			line_read = ft_strjoin(rest, line_read); // Añado el resto a line_readed //
-			free (rest);
-			rest = NULL;
+			freedom((void **)&buffer);
+			line_read = ft_strdup(rest);
+			freedom((void **)&rest);
+			return (line_read);
 		}
+		buffer[bytes_read] = '\0';
+		line_read = prepare_line_read(buffer, rest);
+		if (!line_read)
+			return (NULL);
 		nl_ptr = ft_strchr(line_read, '\n');
-		if (nl_ptr) // Se encuentra un EOL //
+		if (nl_ptr || bytes_read == 0)
 		{
 			nl_ptr[ft_strlen(nl_ptr)] = '\0';
 			rest = ft_strdup(nl_ptr + 1);
 			line_read = ft_substr(line_read, 0, nl_ptr - line_read);
-			free(buffer);
+			freedom((void **)&buffer);
 			return (line_read);
 		}
-		free(nl_ptr);
 	}
-	free (buffer);
+	freedom((void **)&buffer);
 	return (line_read);
 }
