@@ -28,12 +28,13 @@ int	main(void)
 	// To test here;
 	char *linereaded = NULL;
   	int n_lines = 0;
-	while ((linereaded = ft_get_next_line(fd)) != NULL)
+	while ((linereaded = get_next_line(fd)) != NULL)
 	{
 		n_lines++;
-    	printf("%d. %s$\n", n_lines, linereaded);
+    	printf("%d. %s\n", n_lines, linereaded);
     	free(linereaded);
 	}
+	printf("total lines readed: %d\n", n_lines);
 	close(fd);
     return 0;
 }

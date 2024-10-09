@@ -25,7 +25,7 @@ ifeq ($(USE_BUFFER_SIZE), 1)
 endif
 
 # Source files 
-CFILES = ft_get_next_line.c	 ft_get_next_line_utils.c
+CFILES = get_next_line.c	 get_next_line_utils.c
 
 # Object files correspondig to the source files
 OBJS = $(CFILES:.c=.o)
