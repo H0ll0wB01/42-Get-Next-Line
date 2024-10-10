@@ -21,28 +21,35 @@ static void	freedom(void **ptr)
 	}
 }
 
+static char	*update_rest(char **rest, char *new_str)
+{
+	*rest = ft_strdup(new_str);
+	return (*rest);
+}
+
 char	*get_next_line(int fd)
 {
 	char			*buffer;
 	char			*line_readed;
 	char			*eol_ptr;
 	ssize_t			bytes_readed;
-	static char		*rest;
+	static char		*rest = NULL;
 
 	line_readed = NULL;
 	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buffer)
 		return (NULL);
-	while (1)
+	while (1) 	// READ FROM FILE DESCRIPTOR //
 	{
-		// READ FROM FILE DESCRIPTOR // 
 		bytes_readed = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_readed == -1) // HANDLE READ ERROR // 
 		{
+			if (rest)
+				freedom((void **)&rest);
 			freedom((void **)&buffer);
 			return (NULL);
 		}
-		if (bytes_readed == 0) // EOF // REMOVE TO TEST
+		if (bytes_readed == 0) // EOF // 
 		{
 			freedom((void **)&buffer);
 			if (!rest || !*rest) // NO REST SAVED // 
@@ -51,46 +58,50 @@ char	*get_next_line(int fd)
 				return (NULL);
 			}
 			eol_ptr = ft_strchr(rest, '\n');
-			if (eol_ptr) // FOUNDED EOL
+			if (eol_ptr) // FOUNDED EOL // 
 			{
 				*eol_ptr = '\0';
-				// PREPARE LINE_READED TO RETURN //
 				line_readed = ft_substr(rest, 0, (eol_ptr - rest) + 1);
 				if (!line_readed)
 					return (NULL);
-				rest = ft_strdup(eol_ptr +1);
+				rest = update_rest(&rest, eol_ptr + 1);
 				freedom((void **)&buffer);
+				return (line_readed);
+			}
+			else // NO EOL FOUNDED // 
+			{
+				line_readed = ft_strdup(rest);
+				freedom((void **)&rest);
 				return (line_readed);
 			}
 		}
 		else 
 			buffer[bytes_readed] = '\0';
+
+
 		// ----------------------------------------------------------------------- //
 
 		// HANDLE REST //
-		if (!rest && buffer)
-			rest = ft_strdup(buffer);
-		else
-			rest = ft_strjoin_custom(rest, buffer);
+
+		rest = ft_strjoin_custom(rest, buffer);
 		if (!rest)
 			freedom((void **)&rest);
-		
+
 		// ----------------------------------------------------------------------- //
 
 		// SEARCH FOR EOL //
+
 		eol_ptr = ft_strchr(rest, '\n');
 		if (eol_ptr) // FOUNDED EOL
 		{
 			*eol_ptr = '\0';
-			// PREPARE LINE_READED TO RETURN //
 			line_readed = ft_substr(rest, 0, (eol_ptr - rest) + 1);
 			if (!line_readed)
 				return (NULL);
-			rest = ft_strdup(eol_ptr +1);
+			freedom((void **)&rest);
+			rest = update_rest(&rest, eol_ptr + 1);
 			freedom((void **)&buffer);
 			return (line_readed);
 		}
 	}
 }
-// TO DO solve multiple eol // 
-// TO DO solve BUFFER_SIZE Big // 

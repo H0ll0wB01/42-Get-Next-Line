@@ -43,7 +43,7 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-char	*ft_strdup(const char *s)
+char	*ft_strdup(char *s)
 {
 	size_t	sl;
 	char	*ns;
@@ -52,7 +52,7 @@ char	*ft_strdup(const char *s)
 	if (!s)
 		return (NULL);
 	sl = ft_strlen(s);
-	ns = (char *)malloc((sl + 1) * sizeof(char));
+	ns = malloc((sl + 1) * sizeof(char));
 	if (!ns)
 		return (NULL);
 	i = 0;
@@ -70,28 +70,26 @@ char	*ft_strjoin_custom(char *s1, char *s2)
 	size_t	l;
 	char	*ns;
 	int		i;
-	int		j;
 
+	if (!s1)
+		s1 = ft_strdup("");
 	if (!s2)
 		s2 = ft_strdup("");
 	l = ft_strlen(s1) + ft_strlen(s2);
-	ns = (char *)malloc((l + 1) * sizeof(char));
+	ns = malloc((l + 1) * sizeof(char));
 	if (!ns)
+	{
+		free (s1);
+		free (s2);
 		return (NULL);
-	i = 0;
-	while (s1[i])
-	{
+	}
+	i = -1;
+	while (s1[++i])
 		ns[i] = s1[i];
-		i++;
-	}
-	j = 0;
-	while (s2[j])
-	{
-		ns[i] = s2[j];
-		i++;
-		j++;
-	}
+	while (*s2)
+		ns[i++] = *s2++;
 	ns[i] = '\0';
+	free(s1);
 	return (ns);
 }
 

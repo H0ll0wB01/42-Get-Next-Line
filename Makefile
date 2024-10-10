@@ -66,7 +66,9 @@ test_sanitize: $(NAME) main.o
 	$(CC) $(C_SANITIZE_FLAGS) -o test_program main.o $(NAME)
 	@./test_program
 
+# Compile and run the test program with valgrind
 test_valgrind: $(NAME) main.o
 	$(CC) $(C_FLAGS) -o test_program main.o $(NAME)
 	@valgrind --leak-check=full --show-leak-kinds=all  ./test_program
+
 .PHONY: all clean fclean re test
