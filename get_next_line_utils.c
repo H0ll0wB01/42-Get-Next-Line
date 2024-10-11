@@ -12,7 +12,6 @@
 
 #include "get_next_line.h"
 
-// Substr strlen strchr //
 char	*ft_strchr(const char *s, int c)
 {
 	char	*p;
@@ -43,6 +42,28 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
+
+void	*ft_calloc(size_t nmemb, size_t size)
+{
+	size_t			s;
+	void			*ptr;
+	size_t			i;
+	unsigned char	*p;
+
+	s = nmemb * size;
+	ptr = malloc(s);
+	if (!ptr)
+		return (NULL);
+	p = (unsigned char *) ptr;
+	i = 0;
+	while (i < s)
+	{
+		p[i] = '\0';
+		i++;
+	}
+	return (ptr);
+}
+
 char	*ft_strdup(char *s)
 {
 	size_t	sl;
@@ -52,7 +73,7 @@ char	*ft_strdup(char *s)
 	if (!s)
 		return (NULL);
 	sl = ft_strlen(s);
-	ns = malloc((sl + 1) * sizeof(char));
+	ns = ft_calloc((sl + 1), sizeof(char));
 	if (!ns)
 		return (NULL);
 	i = 0;
@@ -61,35 +82,6 @@ char	*ft_strdup(char *s)
 		ns[i] = s[i];
 		i++;
 	}
-	ns[i] = '\0';
-	return (ns);
-}
-
-char	*ft_strjoin_custom(char *s1, char *s2)
-{
-	size_t	l;
-	char	*ns;
-	int		i;
-
-	if (!s1)
-		s1 = ft_strdup("");
-	if (!s2)
-		s2 = ft_strdup("");
-	l = ft_strlen(s1) + ft_strlen(s2);
-	ns = malloc((l + 1) * sizeof(char));
-	if (!ns)
-	{
-		free (s1);
-		free (s2);
-		return (NULL);
-	}
-	i = -1;
-	while (s1[++i])
-		ns[i] = s1[i];
-	while (*s2)
-		ns[i++] = *s2++;
-	ns[i] = '\0';
-	free(s1);
 	return (ns);
 }
 
@@ -106,7 +98,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 		return (ft_strdup("\0"));
 	if (len > ft_strlen(s) - start)
 		len = ft_strlen(s) - start;
-	ns = (char *) malloc((len + 1) * sizeof(char));
+	ns = (char *) ft_calloc((len + 1), sizeof(char));
 	if (!ns)
 		return (NULL);
 	aux = (char *)s;
@@ -118,6 +110,5 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 		i++;
 		j++;
 	}
-	ns[j] = '\0';
 	return (ns);
 }
