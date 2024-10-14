@@ -25,17 +25,11 @@ static char	*obtain_rest_with_nl(int fd, char *rest)
 	{
 		b_readed = read(fd, buffer, BUFFER_SIZE);
 		if (b_readed == -1)
-		{
-			free(buffer);
-			return (NULL);
-		}
+			return (free(buffer), free(rest), NULL);
 		buffer[b_readed] = '\0';
 		rest = ft_strjoin(rest, buffer);
 		if (!rest)
-		{
-			free(buffer);
-			return (NULL);
-		}
+			return (free(buffer), NULL);
 	}
 	free (buffer);
 	return (rest);
