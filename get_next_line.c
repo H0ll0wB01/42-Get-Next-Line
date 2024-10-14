@@ -1,137 +1,114 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_get_next_line.c                                 :+:      :+:    :+:   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jaferna2 <jaferna2@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: jaferna2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/02 11:12:40 by jaferna2          #+#    #+#             */
-/*   Updated: 2024/10/08 20:15:07 by jaferna2         ###   ########.fr       */
+/*   Created: 2024/10/14 10:52:28 by jaferna2          #+#    #+#             */
+/*   Updated: 2024/10/14 10:52:30 by jaferna2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static void	freedom(void **ptr)
+static char	*obtain_rest_with_nl(int fd, char *rest)
 {
-	if (*ptr)
-	{
-		free(*ptr);
-		*ptr = NULL;
-	}
-}
+	char	*buffer;
+	int		b_readed;
 
-static char	*update_rest(char *rest, char *new_str)
-{
-	rest = ft_strdup(new_str);
+	buffer = ft_calloc(sizeof(char), BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	b_readed = 1;
+	while (!ft_strchr(buffer, '\n') && b_readed != 0)
+	{
+		b_readed = read(fd, buffer, BUFFER_SIZE);
+		if (b_readed == -1)
+		{
+			free(buffer);
+			return (NULL);
+		}
+		buffer[b_readed] = '\0';
+		rest = ft_strjoin(rest, buffer);
+		if (!rest)
+		{
+			free(buffer);
+			return (NULL);
+		}
+	}
+	free (buffer);
 	return (rest);
 }
 
-
-static char	*ft_strjoin_custom(char *s1, char *s2)
+static char	*obtain_line_to_eol(char *rest)
 {
-	size_t	l;
-	char	*ns;
 	int		i;
+	char	*line_to_return;
 
-	if (!s1)
-		s1 = ft_strdup("");
-	if (!s2)
-		s2 = ft_strdup("");
-	l = ft_strlen(s1) + ft_strlen(s2);
-	ns = ft_calloc((l + 1), sizeof(char));
-	if (!ns)
+	i = 0;
+	if (!rest[i])
+		return (NULL);
+	while (rest[i] && rest[i] != '\n')
+		i++;
+	line_to_return = (char *)ft_calloc(sizeof(char), (i + 2));
+	if (!line_to_return)
+		return (NULL);
+	i = 0;
+	while (rest[i] && rest[i] != '\n')
 	{
-		free (s1);
-		free (s2);
+		line_to_return[i] = rest[i];
+		i++;
+	}
+	if (rest[i] == '\n')
+	{
+		line_to_return[i] = rest[i];
+		i++;
+	}
+	line_to_return[i] = '\0';
+	return (line_to_return);
+}
+
+static char	*update_rest(char *rest)
+{
+	char	*new_rest;
+	int		i;
+	int		j;
+
+	i = 0;
+	j = 0;
+	while (rest[i] && rest[i] != '\n')
+		i++;
+	if (!rest[i])
+	{
+		free (rest);
 		return (NULL);
 	}
-	i = -1;
-	while (s1[++i])
-		ns[i] = s1[i];
-	while (*s2)
-		ns[i++] = *s2++;
-	freedom((void **)&s1);
-	return (ns);
+	new_rest = (char *)ft_calloc(sizeof(char), ft_strlen(rest) - i);
+	if (!new_rest)
+		return (NULL);
+	i++;
+	while (rest[i])
+	{
+		new_rest[j] = rest[i];
+		i++;
+		j++;
+	}
+	free(rest);
+	return (new_rest);
 }
 
 char	*get_next_line(int fd)
 {
-	char			*buffer;
-	char			*line_readed;
-	char			*eol_ptr;
-	ssize_t			bytes_readed;
-	static char		*rest = NULL;
+	char		*line_readed;
+	static char	*rest;
 
-	line_readed = NULL;
-	buffer = ft_calloc(sizeof(char), (BUFFER_SIZE + 1));
-	if (!buffer)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	while (1) 	// READ FROM FILE DESCRIPTOR //
-	{
-		bytes_readed = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_readed == -1) // HANDLE READ ERROR // 
-		{
-			if (rest)
-				freedom((void **)&rest);
-			freedom((void **)&buffer);
-			return (NULL);
-		}
-		if (bytes_readed == 0) // EOF // 
-		{
-			freedom((void **)&buffer);
-			if (!rest || !*rest) // NO REST SAVED // 
-			{
-				freedom((void **)&rest);
-				return (NULL);
-			}
-			eol_ptr = ft_strchr(rest, '\n');
-			if (eol_ptr) // FOUNDED EOL // 
-			{
-				*eol_ptr = '\0';
-				line_readed = ft_substr(rest, 0, (eol_ptr - rest) + 1);
-				if (!line_readed)
-					return (NULL);
-				rest = update_rest(rest, eol_ptr + 1);
-				freedom((void **)&buffer);
-				return (line_readed);
-			}
-			else // NO EOL FOUNDED // 
-			{
-				line_readed = ft_strdup(rest);
-				freedom((void **)&rest);
-				return (line_readed);
-			}
-		}
-		else 
-			buffer[bytes_readed] = '\0';
-
-
-		// ----------------------------------------------------------------------- //
-
-		// HANDLE REST //
-
-		rest = ft_strjoin_custom(rest, buffer);
-		if (!rest)
-			freedom((void **)&rest);
-		
-		// ----------------------------------------------------------------------- //
-
-		// SEARCH FOR EOL //
-		eol_ptr = ft_strchr(rest, '\n');
-		if (eol_ptr) // FOUNDED EOL //
-		{
-			*eol_ptr = '\0';
-			line_readed = ft_substr(rest, 0, (eol_ptr - rest) + 1);
-			if (!line_readed)
-				return (NULL);
-			rest = update_rest(rest, eol_ptr + 1);
-			freedom((void **)&buffer);
-			return (line_readed);
-		}
-	}
+	rest = obtain_rest_with_nl(fd, rest);
+	if (!rest)
+		return (NULL);
+	line_readed = obtain_line_to_eol(rest);
+	rest = update_rest(rest);
+	return (line_readed);
 }
-
-// single line with EOL Leak //
-
-// Normal use leak //

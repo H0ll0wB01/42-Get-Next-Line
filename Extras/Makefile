@@ -5,7 +5,7 @@ NAME = get_next_line.a
 CC = cc
 
 # Directory where the header files are located
-HEADER_DIR = ./includes
+HEADER_DIR = ../
 
 # Default value for BUFFER_SIZE (can be overridden)
 BUFFER_SIZE ?= 42 
@@ -25,10 +25,11 @@ ifeq ($(USE_BUFFER_SIZE), 1)
 endif
 
 # Source files 
-CFILES = get_next_line.c	 get_next_line_utils.c
+SRC_FILES = get_next_line.c get_next_line_utils.c
+C_FILES = $(addprefix $(HEADER_DIR)/, $(SRC_FILES)) main.c 
 
 # Object files correspondig to the source files
-OBJS = $(CFILES:.c=.o)
+OBJS = $(C_FILES:.c=.o)
 
 #___ MAKEFILE COMMANDS___#
 
@@ -37,6 +38,10 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	ar rcs $(NAME) $(OBJS)
+
+# Rule to compile object files
+$(HEADER_DIR)/%.o: $(HEADER_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Rule to compile main.c into main.o (assuming this file exists)
 main.o: main.c
@@ -51,7 +56,6 @@ fclean: clean
 	rm -f $(NAME)	
 	rm -f ./test_program
 	rm -f main.o
-	rm -f example.txt
 
 # Clean up and then build all targets
 re:	fclean all
@@ -71,4 +75,4 @@ test_valgrind: $(NAME) main.o
 	$(CC) $(C_FLAGS) -o test_program main.o $(NAME)
 	@valgrind --leak-check=full --show-leak-kinds=all  ./test_program
 
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re test test_sanitize test_valgrind
