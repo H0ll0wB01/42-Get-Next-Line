@@ -1,15 +1,16 @@
-#include <fcntl.h>
-#include "get_next_line.h"
 
+#include "get_next_line.h"
+#include <fcntl.h>
+
+/*Change the .txt string to another for test*/
 int	main(void)
 {
-	int fd = open("test01.txt", O_RDONLY);
+	int fd = open("el_quijote.txt", O_RDONLY); 
 	if (fd == -1)
 	{
 		perror("Error opening the file");
 		return 1;
 	}
-	// To test here;
 	char *linereaded = NULL;
   	int n_lines = 0;
 	while ((linereaded = get_next_line(fd)) != NULL)

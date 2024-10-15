@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jaferna2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/14 10:52:28 by jaferna2          #+#    #+#             */
-/*   Updated: 2024/10/14 10:52:30 by jaferna2         ###   ########.fr       */
+/*   Updated: 2024/10/15 09:52:28 by jaferna2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*obtain_rest_with_nl(int fd, char *rest)
 {
@@ -90,14 +90,14 @@ static char	*update_rest(char *rest)
 char	*get_next_line(int fd)
 {
 	char		*line_readed;
-	static char	*rest;
+	static char	*rest[1024];
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	rest = obtain_rest_with_nl(fd, rest);
-	if (!rest)
+	rest[fd] = obtain_rest_with_nl(fd, rest[fd]);
+	if (!rest[fd])
 		return (NULL);
-	line_readed = obtain_line_to_eol(rest);
-	rest = update_rest(rest);
+	line_readed = obtain_line_to_eol(rest[fd]);
+	rest[fd] = update_rest(rest[fd]);
 	return (line_readed);
 }
