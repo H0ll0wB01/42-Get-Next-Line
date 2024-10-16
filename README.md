@@ -1,4 +1,4 @@
-# get_next_line
+# Get-Next-Line
 
 Este proyecto implementa la función `get_next_line`, que reproduce el comportamiento de la función estándar de C para leer una línea completa de un archivo, manejando buffers de tamaño configurable. La biblioteca también incluye una versión adicional (bonus) que amplía la funcionalidad para soportar múltiples descriptores de archivo abiertos al mismo tiempo, lo que permite leer de varios archivos simultáneamente.
 
