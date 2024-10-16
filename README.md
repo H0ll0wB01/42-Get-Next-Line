@@ -4,7 +4,7 @@ Este proyecto implementa la función `get_next_line`, que reproduce el comportam
 
 ## Cómo usar
 
-Los siguientes comandos deben ser ejecutados en la terminal, dentro del directorio correspondiente al proyecto:
+Los siguientes comandos deben ser ejecutados en la terminal, dentro del directorio denominado Extras:
 
 - **`make all`**: Compila el proyecto y genera la biblioteca estática `get_next_line.a` sin incluir las funciones adicionales (bonus).
 
